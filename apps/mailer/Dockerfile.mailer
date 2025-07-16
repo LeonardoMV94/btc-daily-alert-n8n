@@ -1,0 +1,39 @@
+# Etapa 1: Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copia archivos necesarios para instalar deps y build
+COPY package.json pnpm-lock.yaml nx.json ./
+COPY pnpm-workspace.yaml ./          
+COPY apps/mailer/package.json apps/mailer/      
+
+# Instala pnpm y dependencias
+RUN corepack enable && pnpm install
+
+# Copia todo el código fuente (para build)
+COPY . .
+
+# Build con Nx para mailer (Webpack bundle)
+RUN pnpm nx build mailer
+
+# Etapa 2: Producción
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Copia solo el bundle generado (Webpack)
+COPY --from=builder /app/dist/apps/mailer ./dist
+
+# Copia package.json para instalar runtime deps
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+
+# Instala solo deps de producción
+RUN corepack enable && pnpm install --prod
+
+# Expone el puerto que usa la app mailer (ajusta si usas otro)
+EXPOSE 3000
+
+# Ejecuta la app con Node.js
+CMD ["node", "dist/main.js"]

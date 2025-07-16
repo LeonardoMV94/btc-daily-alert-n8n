@@ -1,0 +1,70 @@
+services:
+  backend-mail:
+    build:
+      context: ./apps/mailer
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    container_name: mailer
+    environment:
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - REDIS_HOST="redis"
+      - REDIS_PORT=6379
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - pctester-network
+
+  backend-telegram:
+    build:
+      context: ./apps/telegram
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    container_name: telegram
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    restart: unless-stopped
+    networks:
+      - pctester-network
+  
+  backend-scraper:
+    build:
+      context: ./apps/scraper
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+    container_name: scraper
+    environment:
+      - PLAYWRIGHT_HEADLESS=true
+    restart: unless-stopped
+    networks:
+      - pctester-network
+
+  n8n:
+    image: n8nio/n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_PROTOCOL=http
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    networks:
+      - pctester-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - pctester-network
+
+networks:
+  pctester-network:
+    driver: bridge
