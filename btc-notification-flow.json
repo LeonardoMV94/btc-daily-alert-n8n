@@ -1,0 +1,248 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1152,
+        -128
+      ],
+      "id": "bc0bf70d-08bc-4e3f-92ea-5e927320c2e8",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtenemos ambos items del Merge\nconst [item1, item2] = $items(\"Merge\");\n\nconst first = item1.json;\nconst second = item2.json;\n\n// Detectar cuál es el precio de BTC y cuál es el índice de miedo/codicia\nconst priceData = first.bitcoin ? first : second;\nconst fearGreedData = first.bitcoin ? second : first;\n\nreturn [{\n  json: {\n    price: priceData.bitcoin.usd,\n    fearGreedIndex: fearGreedData\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -80
+      ],
+      "id": "3637a6f1-3ac0-415f-9419-feae19dded66",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "url": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -816,
+        48
+      ],
+      "id": "f5a2105a-25f4-4a22-a3ec-2e32b7312b91",
+      "name": "Get Bitcoin Price"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend-mail:3000/api/mailer/send",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "contacto@pctester.cl"
+            },
+            {
+              "name": "to",
+              "value": "={{[\"leonardomunozveloso@gmail.com\"]}}"
+            },
+            {
+              "name": "subject",
+              "value": "=Price BTC {{$node[\"Code\"].json.price}}"
+            },
+            {
+              "name": "html",
+              "value": "=Price BTC: {{$node[\"Code\"].json.price}}<br>Level: {{$node[\"Code\"].json.fearGreedIndex.Now}}<br>Imagen: <img alt=\"alternative\" src=\"{{$node[\"Code\"].json.fearGreedIndex.image}}\" />"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        112,
+        -192
+      ],
+      "id": "ce691db8-0c6d-4199-97a8-c9cfb2aea9aa",
+      "name": "Send Mail",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backen-telegram:3001/api/telegram/send-message",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"chatId\": \"123123\",\n    \"text\": \"hi iam automated message\"\n  }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        0
+      ],
+      "id": "d69ca273-f2ce-43c2-94d2-6ec60e1aa559",
+      "name": "Send Telegram Message",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -384,
+        -80
+      ],
+      "id": "deae1048-d632-424a-810a-2669e0fa2443",
+      "name": "Merge",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "http://backend-scraper:3000/api/scraper",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -816,
+        -256
+      ],
+      "id": "acc95d84-e658-4980-b90a-115baea00a61",
+      "name": "scraper",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn {\n\t\"Now\": 74,\n\t\"Yesterday\": 70,\n\t\"Last week\": 71,\n\t\"Last month\": 68,\n\t\"image\": \"https://alternative.me/crypto/fear-and-greed-index.png\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -656,
+        -96
+      ],
+      "id": "52434028-883a-41d3-9e5d-89e3d740c8bd",
+      "name": "static data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Bitcoin Price",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bitcoin Price": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Send Telegram Message": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scraper": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "static data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "static data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ce8e1fc-5e98-4f8e-9377-5ee74d421533",
+  "meta": {
+    "instanceId": "7103d0c326ed9d5b72260bdc05211029aeca4dc5ba5636c4826c742eedd2c929"
+  },
+  "id": "Qn0L11h9rYOJFpxr",
+  "tags": []
+}

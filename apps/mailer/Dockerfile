@@ -15,5 +15,7 @@ RUN pnpm add tslib
 # Expone el puerto que usa la app mailer (ajusta si usas otro)
 EXPOSE 3000
 
+USER node
+
 # Ejecuta la app con Node.js
 CMD ["node", "main.js"]

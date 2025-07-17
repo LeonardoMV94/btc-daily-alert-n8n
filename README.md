@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Nx](https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png)
+![Nx](/flow.png)
 
 **Sistema de Monitoreo y Alertas de Criptomonedas**
 
