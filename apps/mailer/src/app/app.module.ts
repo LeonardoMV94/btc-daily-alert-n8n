@@ -16,7 +16,8 @@ import { BullModule } from '@nestjs/bullmq';
           port: config.get<number>('REDIS_PORT', 6379),
         },
       }),
-    }),],
+    }),
+  ],
   controllers: [],
   providers: [],
 })

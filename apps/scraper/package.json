@@ -39,6 +39,12 @@
             "buildTarget": "@crypto-alert/scraper:build:production"
           }
         }
+      },
+      "docker-build": {
+        "dependsOn": [
+          "build"
+        ],
+        "command": "docker build -f apps/scraper/Dockerfile . -t crypto-alert-scraper"
       }
     }
   }

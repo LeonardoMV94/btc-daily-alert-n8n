@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateMailerDto } from './dto/create-mailer.dto';
 import { firstValueFrom, Observable } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
@@ -8,6 +8,8 @@ import { handleResendResponse } from './handlers/resend.handler';
 
 @Injectable()
 export class MailerService {
+  private readonly logger = new Logger(MailerService.name);
+
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
@@ -27,14 +29,18 @@ export class MailerService {
       const response = await firstValueFrom(observableResponse);
 
       if (response.status === 200) {
+        this.logger.log(`Email sent successfully: ${response.data.id}`);
         return response.data;
       }
+      this.logger.error(`Error sending email: ${response.status}`, response.data);
       handleResendResponse(response.status, response.data);
     } catch (error) {
       if (error instanceof AxiosError) {
+        this.logger.error(`Error sending email: ${error.response?.status}`, error.response?.data);
         throw new BadRequestException(error.response?.data);
       }
-      throw new BadRequestException(error.message);
+      this.logger.error(`Error sending email: ${JSON.stringify(error)}`);
+      throw new BadRequestException(error);
     }
   }
 }

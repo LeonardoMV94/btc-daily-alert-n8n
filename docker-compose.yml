@@ -1,14 +1,14 @@
 services:
   backend-mail:
     build:
-      context: ./apps/mailer
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/mailer/Dockerfile
     ports:
       - "3000:3000"
     container_name: mailer
     environment:
       - RESEND_API_KEY=${RESEND_API_KEY}
-      - REDIS_HOST="redis"
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
     restart: unless-stopped
     depends_on:
@@ -31,26 +31,28 @@ services:
   
   backend-scraper:
     build:
-      context: ./apps/scraper
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/scraper/Dockerfile
     ports:
       - "3002:3000"
     container_name: scraper
     environment:
       - PLAYWRIGHT_HEADLESS=true
     restart: unless-stopped
+    volumes:
+      - ./test-scraper:/app/
     networks:
       - pctester-network
 
   n8n:
-    image: n8nio/n8n
+    image: n8nio/n8n:latest
     ports:
       - "5678:5678"
     environment:
       - N8N_BASIC_AUTH_ACTIVE=false
       - N8N_PROTOCOL=http
     volumes:
-      - ./n8n_data:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
     restart: unless-stopped
     networks:
       - pctester-network
@@ -68,3 +70,5 @@ services:
 networks:
   pctester-network:
     driver: bridge
+volumes:
+  n8n_data:
