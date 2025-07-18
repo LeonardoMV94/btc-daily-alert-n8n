@@ -10,7 +10,7 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY apps/scraper/dist ./
+COPY apps/scraper/dist .
 
 # Instala solo deps de producción
 RUN pnpm install --prod
