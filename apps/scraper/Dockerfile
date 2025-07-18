@@ -2,8 +2,7 @@
 FROM mcr.microsoft.com/playwright:v1.43.1-jammy
 
 # Configuración básica
-ENV HOST=0.0.0.0 \
-    PORT=3000 \
+ENV PORT=3000 \
     NODE_ENV=production
 
 WORKDIR /app

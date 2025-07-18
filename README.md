@@ -31,12 +31,12 @@ CryptoAlert es un sistema completo de monitoreo y alertas para criptomonedas con
 ```
 crypto-alert/
 ├── apps/
-│   ├── mailer/          # Servicio de envío de emails
-│   ├── telegram/        # Servicio de notificaciones Telegram
-│   └── scraper/         # Servicio de web scraping
-├── n8n_data/           # Datos de configuración de n8n
-├── docker-compose.yml  # Configuración de contenedores
-└── package.json        # Dependencias del workspace
+│   ├── mailer/                 # Servicio de envío de emails con Resend y BullMQ
+│   ├── telegram/               # Servicio de notificaciones Telegram
+│   └── scraper/                # Servicio de web scraping con Playwright
+├── docker-compose.yml          # Configuración de contenedores
+├── btc-notification-flow.json  # Exportacion de workflow de n8n
+└── package.json                # Dependencias del workspace
 ```
 
 ### 🔧 Tecnologías Utilizadas
