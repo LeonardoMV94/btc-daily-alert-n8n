@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Nx](/flow.png)
+![flow-n8n](https://github.com/LeonardoMV94/btc-daily-alert-n8n/raw/main/flow.png)
 
 **Sistema de Monitoreo y Alertas de Criptomonedas**
 
