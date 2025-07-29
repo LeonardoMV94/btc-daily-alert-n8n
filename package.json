@@ -32,7 +32,7 @@
     "@nx/nest": "21.2.3",
     "@nx/node": "21.2.3",
     "@nx/web": "21.2.3",
-    "@nx/webpack": "21.2.3",
+    "@nx/webpack": "21.3.8",
     "@nx/workspace": "21.2.3",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
