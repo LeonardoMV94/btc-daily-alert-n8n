@@ -1,5 +1,5 @@
 # Imagen base Playwright con Node.js
-FROM mcr.microsoft.com/playwright:v1.54.1-jammy
+FROM mcr.microsoft.com/playwright:v1.55.1-jammy
 
 # Configuración básica
 ENV PORT=3000 \
